@@ -144,3 +144,6 @@ jobs:
     - name: Test mpi4py.futures (np=3)
       run:  mpiexec -n 3 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
       if:   ${{ matrix.device == 'ch3:sock' }}
+
+    - name: Test mpi4py.run
+      run:  python mpi4py/demo/test-run/test_run.py -v
