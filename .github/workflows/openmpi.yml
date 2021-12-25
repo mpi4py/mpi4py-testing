@@ -71,7 +71,6 @@ jobs:
         # Tweak MPI
         mca_params="$HOME/.openmpi/mca-params.conf"
         mkdir -p "$(dirname "$mca_params")"
-        echo plm = isolated >> "$mca_params"
         echo mpi_param_check = 1 >> "$mca_params"
         echo mpi_show_handle_leaks = 1 >> "$mca_params"
         mca_params="$HOME/.prte/mca-params.conf"
