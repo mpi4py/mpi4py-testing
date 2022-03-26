@@ -9,7 +9,7 @@ on:
         required: true
       mpi-ref:
         description: 'MPI ref'
-        default:  master
+        default:  main
         required: true
       mpi4py-git:
         description: 'mpi4py git'
