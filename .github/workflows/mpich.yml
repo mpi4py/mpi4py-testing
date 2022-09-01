@@ -148,3 +148,7 @@ jobs:
 
     - name: Test mpi4py.run
       run:  python mpi4py/demo/test-run/test_run.py -v
+    - name: Test init-fini
+      run:  bash mpi4py/demo/init-fini/run.sh
+    - name: Test check-mpiexec
+      run:  bash mpi4py/demo/check-mpiexec/run.sh
