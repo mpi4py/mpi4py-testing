@@ -30,6 +30,7 @@ jobs:
 
   test:
     runs-on: ubuntu-20.04
+    timeout-minutes: 60
 
     steps:
 
@@ -114,8 +115,12 @@ jobs:
       run:  mpiexec -n 2 python mpi4py/test/runtests.py -v -f
     - name: Test mpi4py (np=3)
       run:  mpiexec -n 3 python mpi4py/test/runtests.py -v -f
+      if:   ${{ true }}
+      timeout-minutes: 5
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python mpi4py/test/runtests.py -v -f
+      if:   ${{ true }}
+      timeout-minutes: 10
 
     - name: Test mpi4py.futures (np=1)
       run:  mpiexec -n 1 python mpi4py/demo/futures/test_futures.py -v
@@ -123,6 +128,7 @@ jobs:
       run:  mpiexec -n 2 python mpi4py/demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=3)
       run:  mpiexec -n 3 python mpi4py/demo/futures/test_futures.py -v
+      if:   ${{ true }}
 
     - name: Test mpi4py.futures (np=1)
       run:  mpiexec -n 1 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
@@ -130,6 +136,7 @@ jobs:
       run:  mpiexec -n 2 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=3)
       run:  mpiexec -n 3 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+      if:   ${{ true }}
 
     - name: Test mpi4py.run
       run:  python mpi4py/demo/test-run/test_run.py -v
