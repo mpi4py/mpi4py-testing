@@ -121,7 +121,6 @@ jobs:
 
     - name: Test mpi4py (singleton)
       run:  python mpi4py/test/runtests.py -v
-      if:   ${{ startsWith(matrix.device, 'ch4:') }}
     - name: Test mpi4py (np=1)
       run:  mpiexec -n 1 python mpi4py/test/runtests.py -v
     - name: Test mpi4py (np=2)
@@ -137,7 +136,6 @@ jobs:
 
     - name: Test mpi4py.futures (singleton)
       run:  python mpi4py/demo/futures/test_futures.py -v
-      if:   ${{ startsWith(matrix.device, 'ch4:') }}
     - name: Test mpi4py.futures (np=1)
       run:  mpiexec -n 1 python mpi4py/demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=2)
