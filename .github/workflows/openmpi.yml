@@ -31,6 +31,11 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mpi-git: ${{ github.event.inputs.mpi-git || fromJSON('["open-mpi/ompi"]') }}
+        mpi-ref: ${{ github.event.inputs.mpi-ref || fromJSON('["main", "v5.0.x"]') }}
 
     steps:
 
@@ -45,8 +50,8 @@ jobs:
     - name: Checkout MPI
       uses: actions/checkout@v3
       with:
-        repository: ${{ github.event.inputs.mpi-git || 'open-mpi/ompi' }}
-        ref:        ${{ github.event.inputs.mpi-ref || 'main' }}
+        repository: ${{ matrix.mpi-git || 'open-mpi/ompi' }}
+        ref:        ${{ matrix.mpi-ref || 'main' }}
         submodules: recursive
 
     - name: Bootstrap MPI
