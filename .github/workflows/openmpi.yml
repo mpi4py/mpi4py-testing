@@ -34,8 +34,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mpi-git: ${{ github.event.inputs.mpi-git && fromJSON(format('["{0}"]', github.event.inputs.mpi-git)) || fromJSON('["open-mpi/ompi"]')  }}
-        mpi-ref: ${{ github.event.inputs.mpi-ref && fromJSON(format('["{0}"]', github.event.inputs.mpi-ref)) || fromJSON('["main", "v5.0.x"]') }}
+        mpi-git: ${{ github.event.inputs.mpi-git &&
+                     fromJSON(format('["{0}"]', github.event.inputs.mpi-git)) ||
+                     fromJSON('["open-mpi/ompi"]')  }}
+        mpi-ref: ${{ github.event.inputs.mpi-ref &&
+                     fromJSON(format('["{0}"]', github.event.inputs.mpi-ref)) ||
+                     fromJSON('["main", "v5.0.x"]') }}
 
     steps:
 
