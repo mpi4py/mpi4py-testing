@@ -1,0 +1,114 @@
+name: intelmpi
+
+on:
+  workflow_dispatch:
+    inputs:
+      mpi4py-git:
+        description: 'mpi4py git'
+        default:  mpi4py/mpi4py
+        required: true
+      mpi4py-ref:
+        description: 'mpi4py ref'
+        default:  master
+        required: true
+  push:
+    branches:
+      - ci/all
+      - ci/intelmpi
+  schedule:
+    - cron: '0 0 * * 6'
+
+jobs:
+
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+
+    - name: Configure hostname
+      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+
+    - name: Install MPI
+      uses: mpi4py/setup-mpi@v1
+      with:
+        mpi: intelmpi
+
+    - name: Tweak MPI
+      run:  |
+        # Tweak MPI
+        echo "I_MPI_WAIT_MODE=1" >> $GITHUB_ENV
+
+    - name: Show MPI
+      run:  echo "${I_MPI_ROOT}"
+
+    - name: Show MPICC
+      run:  mpicc -show
+
+    - name: Use Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        architecture: x64
+
+    - name: Install Python packages (build)
+      run:  python -m pip install --upgrade
+              setuptools pip wheel
+
+    - name: Install Python packages (test)
+      run:  python -m pip install --upgrade
+              numpy cffi pyyaml
+
+    - name: Checkout mpi4py
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.inputs.mpi4py-git || 'mpi4py/mpi4py' }}
+        ref:        ${{ github.event.inputs.mpi4py-ref || 'master' }}
+        path:       mpi4py
+
+    - name: Install mpi4py
+      run:  python -m pip install ./mpi4py
+      env:
+        CFLAGS: "-O0"
+
+    - name: Tweak mpi4py
+      run:  echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
+
+    - name: Test mpi4py (singleton)
+      run:  python mpi4py/test/runtests.py -v
+    - name: Test mpi4py (np=1)
+      run:  mpiexec -n 1 python mpi4py/test/runtests.py -v
+    - name: Test mpi4py (np=2)
+      run:  mpiexec -n 2 python mpi4py/test/runtests.py -v -f
+    - name: Test mpi4py (np=3)
+      run:  mpiexec -n 3 python mpi4py/test/runtests.py -v -f
+      if:   ${{ false }}
+      timeout-minutes: 5
+    - name: Test mpi4py (np=5)
+      run:  mpiexec -n 5 python mpi4py/test/runtests.py -v -f
+      if:   ${{ false }}
+      timeout-minutes: 10
+
+    - name: Test mpi4py.futures (singleton)
+      run:  python mpi4py/demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=1)
+      run:  mpiexec -n 1 python mpi4py/demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=2)
+      run:  mpiexec -n 2 python mpi4py/demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=3)
+      run:  mpiexec -n 3 python mpi4py/demo/futures/test_futures.py -v
+
+    - name: Test mpi4py.futures (np=1)
+      run:  mpiexec -n 1 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=2)
+      run:  mpiexec -n 2 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=3)
+      run:  mpiexec -n 3 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+
+    - name: Test mpi4py.run
+      run:  python mpi4py/demo/test-run/test_run.py -v
+    - name: Test init-fini
+      run:  bash mpi4py/demo/init-fini/run.sh
+    - name: Test check-mpiexec
+      run:  bash mpi4py/demo/check-mpiexec/run.sh
