@@ -21,8 +21,14 @@ on:
 jobs:
 
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - windows-2022
 
     steps:
 
@@ -39,9 +45,19 @@ jobs:
       run:  |
         # Tweak MPI
         echo "I_MPI_WAIT_MODE=1" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Copy MPI DLL to system location
+      run:  cp "$Env:I_MPI_ROOT\bin\release\impi.dll" "$Env:SystemRoot\System32"
+      if:   ${{ runner.os == 'Windows' }}
 
     - name: Show MPI
-      run:  echo "${I_MPI_ROOT}"
+      run:  echo "$I_MPI_ROOT"
+      if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+
+    - name: Show MPI
+      run:  echo "$Env:I_MPI_ROOT"
+      if:   ${{ runner.os == 'Windows' }}
 
     - name: Show MPICC
       run:  mpicc -show
@@ -73,7 +89,10 @@ jobs:
         CFLAGS: "-O0"
 
     - name: Tweak mpi4py
-      run:  echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
+      run:  |
+        # Tweak mpi4py
+        echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
+      shell: bash
 
     - name: Test mpi4py (singleton)
       run:  python mpi4py/test/runtests.py -v
