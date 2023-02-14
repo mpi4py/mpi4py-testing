@@ -24,7 +24,7 @@ on:
       - ci/all
       - ci/mpich
   schedule:
-    - cron: '0 0 * * 6'
+    - cron: '0 0 * * *'
 
 jobs:
 
