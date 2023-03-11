@@ -1,6 +1,18 @@
 name: mpich
 
 on:
+  workflow_call:
+    inputs:
+      mpi4py-git:
+        description: 'mpi4py git'
+        default:  mpi4py/mpi4py
+        required: true
+        type: string
+      mpi4py-ref:
+        description: 'mpi4py ref'
+        default:  master
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       mpi-git:
