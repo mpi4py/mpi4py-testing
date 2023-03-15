@@ -59,10 +59,6 @@ jobs:
         echo "I_MPI_WAIT_MODE=1" >> $GITHUB_ENV
       shell: bash
 
-    - name: Copy MPI DLL to system location
-      run:  cp "$Env:I_MPI_ROOT\bin\release\impi.dll" "$Env:SystemRoot\System32"
-      if:   ${{ runner.os == 'Windows' }}
-
     - name: Show MPI
       run:  echo "$I_MPI_ROOT"
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
