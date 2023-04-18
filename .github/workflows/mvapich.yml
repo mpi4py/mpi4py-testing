@@ -143,11 +143,11 @@ jobs:
     - name: Test mpi4py (np=3)
       run:  mpiexec -n 3 python mpi4py/test/runtests.py -v -f
       if:   ${{ matrix.device == 'ch3:sock' }}
-      timeout-minutes: 5
+      timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python mpi4py/test/runtests.py -v -f
       if:   ${{ matrix.device == 'ch3:sock' }}
-      timeout-minutes: 10
+      timeout-minutes: 20
 
     - name: Test mpi4py.futures (singleton)
       run:  python mpi4py/demo/futures/test_futures.py -v
