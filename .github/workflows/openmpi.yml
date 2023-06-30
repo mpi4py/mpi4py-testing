@@ -55,7 +55,7 @@ jobs:
                      fromJSON('["open-mpi/ompi"]')  }}
         mpi-ref: ${{ github.event.inputs.mpi-ref &&
                      fromJSON(format('["{0}"]', github.event.inputs.mpi-ref)) ||
-                     fromJSON('["main", "v5.0.x"]') }}
+                     fromJSON('["main", "v5.0.x", "v4.1.x"]') }}
 
     steps:
 
@@ -98,8 +98,9 @@ jobs:
         # Tweak MPI
         mca_params="$HOME/.openmpi/mca-params.conf"
         mkdir -p "$(dirname "$mca_params")"
-        echo mpi_param_check = 1 >> "$mca_params"
-        echo mpi_show_handle_leaks = 1 >> "$mca_params"
+        echo mpi_param_check = true >> "$mca_params"
+        echo mpi_show_handle_leaks = true >> "$mca_params"
+        echo rmaps_base_oversubscribe = true >> "$mca_params"
         mca_params="$HOME/.prte/mca-params.conf"
         mkdir -p "$(dirname "$mca_params")"
         echo rmaps_default_mapping_policy = :oversubscribe >> "$mca_params"
