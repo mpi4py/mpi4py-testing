@@ -58,7 +58,7 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
-        echo "I_MPI_WAIT_MODE=1" >> $GITHUB_ENV
+        true
       shell: bash
 
     - name: Show MPI
