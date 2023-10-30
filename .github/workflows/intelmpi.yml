@@ -99,12 +99,6 @@ jobs:
       env:
         CFLAGS: "-O0"
 
-    - name: Tweak mpi4py
-      run:  |
-        # Tweak mpi4py
-        echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
-      shell: bash
-
     - name: Test mpi4py (singleton)
       run:  python mpi4py/test/runtests.py -v
       if:   ${{ true }}
@@ -120,6 +114,10 @@ jobs:
       run:  mpiexec -n 5 python mpi4py/test/runtests.py -v -f
       if:   ${{ false }}
       timeout-minutes: 20
+
+    - name:  Set MPI4PY_RC_RECV_MPROBE=false
+      run:   echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
+      shell: bash
 
     - name: Test mpi4py.futures (singleton)
       run:  python mpi4py/demo/futures/test_futures.py -v
