@@ -10,7 +10,7 @@ on:
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  master
+        default:  feature/MPI-41
         required: true
         type: string
   workflow_dispatch:
@@ -32,7 +32,7 @@ on:
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  master
+        default:  feature/MPI-41
         required: true
         type: string
   push:
