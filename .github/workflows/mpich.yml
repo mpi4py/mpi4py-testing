@@ -127,7 +127,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ github.event.inputs.mpi4py-git || 'mpi4py/mpi4py' }}
-        ref:        ${{ github.event.inputs.mpi4py-ref || 'master' }}
+        ref:        ${{ github.event.inputs.mpi4py-ref || 'feature/MPI-41' }}
         path:       mpi4py
 
     - name: Install mpi4py
