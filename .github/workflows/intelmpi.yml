@@ -58,6 +58,7 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
+        echo "I_MPI_SPAWN=1"        >> $GITHUB_ENV
         echo "I_MPI_SPIN_COUNT=1"   >> $GITHUB_ENV
         echo "I_MPI_THREAD_YIELD=2" >> $GITHUB_ENV
       shell: bash
@@ -103,11 +104,11 @@ jobs:
       run:  mpiexec -n 2 python test/main.py -v -f
     - name: Test mpi4py (np=3)
       run:  mpiexec -n 3 python test/main.py -v -f
-      if:   ${{ false }}
+      if:   ${{ true }}
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
-      if:   ${{ false }}
+      if:   ${{ true }}
       timeout-minutes: 20
 
     - name:  Set MPI4PY_RC_RECV_MPROBE=false
