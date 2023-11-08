@@ -135,6 +135,11 @@ jobs:
       env:
         CFLAGS: "-O0"
 
+    - name: Test mpi4py (mpi-std-version)
+      run:  python -m mpi4py --mpi-std-version
+    - name: Test mpi4py (mpi-lib-version)
+      run:  python -m mpi4py --mpi-lib-version
+
     - name: Test mpi4py (singleton)
       run:  python mpi4py/test/runtests.py -v
       if:   ${{ true }}
