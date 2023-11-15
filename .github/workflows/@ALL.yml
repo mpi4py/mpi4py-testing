@@ -5,13 +5,13 @@ on:
     inputs:
       mpi4py-git:
         description: 'mpi4py git'
-        default:  mpi4py/mpi4py
+        default: mpi4py/mpi4py
         required: true
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  master
-        required: true
+        default: ''
+        required: false
         type: string
   push:
     branches:
@@ -22,23 +22,23 @@ jobs:
   mpich:
     uses: ./.github/workflows/mpich.yml
     with:
-      mpi4py-git: ${{ github.event.inputs.mpi4py-git }}
-      mpi4py-ref: ${{ github.event.inputs.mpi4py-ref }}
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}
 
   openmpi:
     uses: ./.github/workflows/openmpi.yml
     with:
-      mpi4py-git: ${{ github.event.inputs.mpi4py-git }}
-      mpi4py-ref: ${{ github.event.inputs.mpi4py-ref }}
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}
 
   intelmpi:
     uses: ./.github/workflows/intelmpi.yml
     with:
-      mpi4py-git: ${{ github.event.inputs.mpi4py-git }}
-      mpi4py-ref: ${{ github.event.inputs.mpi4py-ref }}
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}
 
   mvapich:
     uses: ./.github/workflows/mvapich.yml
     with:
-      mpi4py-git: ${{ github.event.inputs.mpi4py-git }}
-      mpi4py-ref: ${{ github.event.inputs.mpi4py-ref }}
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}

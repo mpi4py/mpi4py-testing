@@ -5,13 +5,13 @@ on:
     inputs:
       mpi4py-git:
         description: 'mpi4py git'
-        default:  mpi4py/mpi4py
-        required: true
+        default: mpi4py/mpi4py
+        required: false
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  master
-        required: true
+        default: ''
+        required: false
         type: string
   workflow_dispatch:
     inputs:
@@ -28,12 +28,12 @@ on:
       mpi4py-git:
         description: 'mpi4py git'
         default:  mpi4py/mpi4py
-        required: true
+        required: false
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  master
-        required: true
+        default: ''
+        required: false
         type: string
   push:
     branches:
@@ -70,14 +70,16 @@ jobs:
               libnuma-dev
 
     - name: Checkout MPI
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        repository: ${{ github.event.inputs.mpi-git || 'pmodels/mpich' }}
-        ref:        ${{ github.event.inputs.mpi-ref || 'main' }}
+        repository: ${{ inputs.mpi-git || 'pmodels/mpich' }}
+        ref: ${{ inputs.mpi-ref }}
+        path: mpi-build
         submodules: recursive
 
     - name: Bootstrap MPI
       run:  ./autogen.sh
+      working-directory: mpi-build
 
     - name: Configure MPI
       run:  ./configure
@@ -91,12 +93,15 @@ jobs:
               LDFLAGS=-Wl,-rpath,/usr/local/lib
               $(test ${{ matrix.pm }} == gforker &&
                 echo --with-namepublisher=file)
+      working-directory: mpi-build
 
     - name: Build MPI
       run:  make -j 2
+      working-directory: mpi-build
 
     - name: Install MPI
       run:  sudo make install
+      working-directory: mpi-build
 
     - name: Tweak MPI
       run:  |
@@ -124,52 +129,51 @@ jobs:
               numpy cffi pyyaml
 
     - name: Checkout mpi4py
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        repository: ${{ github.event.inputs.mpi4py-git || 'mpi4py/mpi4py' }}
-        ref:        ${{ github.event.inputs.mpi4py-ref || 'master' }}
-        path:       mpi4py
+        repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
+        ref: ${{ inputs.mpi4py-ref }}
 
     - name: Install mpi4py
-      run:  python -m pip install ./mpi4py
+      run:  python -m pip install .
       env:
         CFLAGS: "-O0"
 
     - name: Test mpi4py (singleton)
-      run:  python mpi4py/test/main.py -v
+      run:  python test/main.py -v
       if:   ${{ true }}
     - name: Test mpi4py (np=1)
-      run:  mpiexec -n 1 python mpi4py/test/main.py -v
+      run:  mpiexec -n 1 python test/main.py -v
     - name: Test mpi4py (np=2)
-      run:  mpiexec -n 2 python mpi4py/test/main.py -v -f
+      run:  mpiexec -n 2 python test/main.py -v -f
     - name: Test mpi4py (np=3)
-      run:  mpiexec -n 3 python mpi4py/test/main.py -v -f
+      run:  mpiexec -n 3 python test/main.py -v -f
       if:   ${{ matrix.device == 'ch3:sock' }}
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
-      run:  mpiexec -n 5 python mpi4py/test/main.py -v -f
+      run:  mpiexec -n 5 python test/main.py -v -f
       if:   ${{ matrix.device == 'ch3:sock' }}
       timeout-minutes: 20
 
     - name: Test mpi4py.futures (singleton)
-      run:  python mpi4py/demo/futures/test_futures.py -v
+      run:  python demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=1)
-      run:  mpiexec -n 1 python mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 1 python demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=2)
-      run:  mpiexec -n 2 python mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 2 python demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=3)
-      run:  mpiexec -n 3 python mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 3 python demo/futures/test_futures.py -v
 
     - name: Test mpi4py.futures (np=1)
-      run:  mpiexec -n 1 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 1 python -m mpi4py.futures demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=2)
-      run:  mpiexec -n 2 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 2 python -m mpi4py.futures demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=3)
-      run:  mpiexec -n 3 python -m mpi4py.futures mpi4py/demo/futures/test_futures.py -v
+      run:  mpiexec -n 3 python -m mpi4py.futures demo/futures/test_futures.py -v
 
     - name: Test mpi4py.run
-      run:  python mpi4py/demo/test-run/test_run.py -v
+      run:  python demo/test-run/test_run.py -v
     - name: Test init-fini
-      run:  bash mpi4py/demo/init-fini/run.sh
+      run:  bash demo/init-fini/run.sh
     - name: Test check-mpiexec
-      run:  bash mpi4py/demo/check-mpiexec/run.sh
+      run:  bash demo/check-mpiexec/run.sh
