@@ -138,18 +138,18 @@ jobs:
         CFLAGS: "-O0"
 
     - name: Test mpi4py (singleton)
-      run:  python mpi4py/test/runtests.py -v
+      run:  python mpi4py/test/main.py -v
       if:   ${{ true }}
     - name: Test mpi4py (np=1)
-      run:  mpiexec -n 1 python mpi4py/test/runtests.py -v
+      run:  mpiexec -n 1 python mpi4py/test/main.py -v
     - name: Test mpi4py (np=2)
-      run:  mpiexec -n 2 python mpi4py/test/runtests.py -v -f
+      run:  mpiexec -n 2 python mpi4py/test/main.py -v -f
     - name: Test mpi4py (np=3)
-      run:  mpiexec -n 3 python mpi4py/test/runtests.py -v -f
+      run:  mpiexec -n 3 python mpi4py/test/main.py -v -f
       if:   ${{ true }}
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
-      run:  mpiexec -n 5 python mpi4py/test/runtests.py -v -f
+      run:  mpiexec -n 5 python mpi4py/test/main.py -v -f
       if:   ${{ true }}
       timeout-minutes: 20
 
