@@ -5,12 +5,12 @@ on:
     inputs:
       mpi4py-git:
         description: 'mpi4py git'
-        default: mpi4py/mpi4py
-        required: true
+        default:  mpi4py/mpi4py
+        required: false
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default: ''
+        default:  ''
         required: false
         type: string
   push:
