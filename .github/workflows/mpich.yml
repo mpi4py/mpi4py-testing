@@ -96,7 +96,7 @@ jobs:
       working-directory: mpi-build
 
     - name: Build MPI
-      run:  make -j 2
+      run:  make -j $(nproc)
       working-directory: mpi-build
 
     - name: Install MPI
