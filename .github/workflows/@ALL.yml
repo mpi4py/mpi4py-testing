@@ -15,7 +15,7 @@ on:
         type: string
   push:
     branches:
-      - gh-workflow/@ALL
+      - ci/@ALL
 
 jobs:
 

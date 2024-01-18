@@ -150,12 +150,12 @@ jobs:
       run:  mpiexec -n 2 python test/main.py -v -f
     - name: Test mpi4py (np=3)
       run:  mpiexec -n 3 python test/main.py -v -f
-      if:   ${{ true }}
-      timeout-minutes: 10
+    - name: Test mpi4py (np=4)
+      run:  mpiexec -n 4 python test/main.py -v -f
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
       if:   ${{ true }}
-      timeout-minutes: 20
+      timeout-minutes: 10
 
     - name: Test mpi4py.futures (singleton)
       run:  python demo/futures/test_futures.py -v
