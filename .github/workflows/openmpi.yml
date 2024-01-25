@@ -50,7 +50,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mpi-git: ${{ inputs.mpi-git ||'open-mpi/ompi' }}
         mpi-ref: ${{ inputs.mpi-ref &&
                      fromJSON(format('["{0}"]', inputs.mpi-ref)) ||
                      fromJSON('["main", "v5.0.x", "v4.1.x"]') }}
@@ -68,7 +67,7 @@ jobs:
     - name: Checkout MPI
       uses: actions/checkout@v4
       with:
-        repository: ${{ matrix.mpi-git || 'open-mpi/ompi' }}
+        repository: ${{ inputs.mpi-git || 'open-mpi/ompi' }}
         ref: ${{ matrix.mpi-ref }}
         path: mpi-build
         submodules: recursive
