@@ -82,8 +82,8 @@ jobs:
               --enable-debug
               --enable-mem-debug
               --disable-sphinx
-              --disable-man-pages
               --disable-mpi-fortran
+              --disable-oshmem
               LDFLAGS=-Wl,-rpath,/usr/local/lib
       working-directory: mpi-build
 
