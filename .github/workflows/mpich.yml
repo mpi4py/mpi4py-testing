@@ -87,6 +87,7 @@ jobs:
               --with-device=${{ matrix.device }}
               --disable-dependency-tracking
               --disable-maintainer-mode
+              --disable-doc
               --enable-g=all
               --enable-fast=none
               --disable-fortran
