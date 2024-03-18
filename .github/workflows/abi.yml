@@ -1,0 +1,221 @@
+name: abi
+
+on:
+  workflow_call:
+    inputs:
+      mpi4py-git:
+        description: 'mpi4py git'
+        default:  mpi4py/mpi4py
+        required: false
+        type: string
+      mpi4py-ref:
+        description: 'mpi4py ref'
+        default:  ''
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      mpi-git:
+        description: 'MPI git'
+        default:  pmodels/mpich
+        required: false
+        type: string
+      mpi-ref:
+        description: 'MPI ref'
+        default:  ''
+        required: false
+        type: string
+      mpi4py-git:
+        description: 'mpi4py git'
+        default:  mpi4py/mpi4py
+        required: false
+        type: string
+      mpi4py-ref:
+        description: 'mpi4py ref'
+        default:  ''
+        required: false
+        type: string
+  push:
+    branches:
+      - ci/all
+      - ci/abi
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+
+    - name: Checkout MPI stubs
+      uses: actions/checkout@v4
+      with:
+        repository: mpiwg-abi/header_and_stub_library
+        ref: main
+        path: mpi-stubs
+
+    - name: Build MPI stubs
+      run:  make
+      working-directory: mpi-stubs
+
+    - name: Add MPI stubs to PATH
+      run: |
+        mpi_stubs=${{ github.workspace }}/mpi-stubs
+        echo $mpi_stubs/bin >> $GITHUB_PATH
+
+    - name: Use Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3
+        architecture: x64
+
+    - name: Checkout mpi4py
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
+        ref: ${{ inputs.mpi4py-ref }}
+        path: mpi4py
+
+    - name: Build mpi4py wheel
+      run:  python -m pip wheel ./mpi4py
+      env:
+        CPPFLAGS: "-DMPI_ABI=1"
+        CFLAGS: "-O0"
+
+    - name: Upload mpi4py wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: mpi4py-wheel
+        path: mpi4py-*.whl
+
+
+  mpich:
+    needs: build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+
+    - name: Configure hostname
+      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
+
+    - name: Install depencencies
+      run:  sudo apt-get install -y -q
+              libhwloc-dev
+              libfabric-dev
+              libibverbs-dev
+              libpsm-infinipath1-dev
+              libpsm2-dev
+              librdmacm-dev
+
+    - name: Checkout MPI
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.mpi-git || 'pmodels/mpich' }}
+        ref: ${{ inputs.mpi-ref }}
+        path: mpi-build
+        submodules: recursive
+
+    - name: Bootstrap MPI
+      run:  ./autogen.sh
+      working-directory: mpi-build
+
+    - name: Configure MPI
+      run:  ./configure
+              --with-pm=hydra
+              --with-device=ch4:ofi
+              --disable-dependency-tracking
+              --disable-maintainer-mode
+              --disable-doc
+              --enable-g=all
+              --enable-fast=none
+              --enable-mpi-abi
+      working-directory: mpi-build
+
+    - name: Build MPI
+      run:  make -j $(nproc)
+      working-directory: mpi-build
+
+    - name: Install MPI
+      run:  sudo make install
+      working-directory: mpi-build
+
+    - name: Run ldconfig
+      run:  sudo ldconfig
+      working-directory: mpi-build
+
+    - name: Tweak MPI
+      run:  |
+        # Tweak MPI
+        echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
+
+    - name: Show MPI
+      run:  mpichversion
+
+    - name: Use Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3
+        architecture: x64
+
+    - name: Checkout mpi4py
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
+        ref: ${{ inputs.mpi4py-ref }}
+
+    - name: Download mpi4py wheel
+      uses: actions/download-artifact@v4
+      with:
+        name: mpi4py-wheel
+        path: dist
+
+    - name: Install mpi4py wheel
+      run:  python -m pip install mpi4py
+              --no-index --find-links=dist
+
+    - name: Test mpi4py (singleton)
+      run:  python test/main.py -v
+      if:   ${{ true }}
+    - name: Test mpi4py (np=1)
+      run:  mpiexec -n 1 python test/main.py -v
+    - name: Test mpi4py (np=2)
+      run:  mpiexec -n 2 python test/main.py -v -f
+      timeout-minutes: 10
+    - name: Test mpi4py (np=3)
+      run:  mpiexec -n 3 python test/main.py -v -f
+      timeout-minutes: 10
+    - name: Test mpi4py (np=4)
+      run:  mpiexec -n 4 python test/main.py -v -f
+      timeout-minutes: 10
+    - name: Test mpi4py (np=5)
+      run:  mpiexec -n 5 python test/main.py -v -f
+      if:   ${{ false }}
+      timeout-minutes: 10
+
+    - name: Test mpi4py.futures (singleton)
+      run:  python demo/futures/test_futures.py -v
+      if:   ${{ true }}
+    - name: Test mpi4py.futures (np=1)
+      run:  mpiexec -n 1 python demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=2)
+      run:  mpiexec -n 2 python demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=3)
+      run:  mpiexec -n 3 python demo/futures/test_futures.py -v
+
+    - name: Test mpi4py.futures (np=1)
+      run:  mpiexec -n 1 python -m mpi4py.futures demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=2)
+      run:  mpiexec -n 2 python -m mpi4py.futures demo/futures/test_futures.py -v
+    - name: Test mpi4py.futures (np=3)
+      run:  mpiexec -n 3 python -m mpi4py.futures demo/futures/test_futures.py -v
+
+    - name: Test mpi4py.run
+      run:  python demo/test-run/test_run.py -v
+    - name: Test init-fini
+      run:  bash demo/init-fini/run.sh
+    - name: Test check-mpiexec
+      run:  bash demo/check-mpiexec/run.sh

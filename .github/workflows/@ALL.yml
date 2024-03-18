@@ -19,6 +19,12 @@ on:
 
 jobs:
 
+  abi:
+    uses: ./.github/workflows/abi.yml
+    with:
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}
+
   mpich:
     uses: ./.github/workflows/mpich.yml
     with:

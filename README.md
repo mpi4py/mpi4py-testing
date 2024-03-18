@@ -4,6 +4,7 @@ CI testing for [mpi4py](https://github.com/mpi4py/mpi4py) with in-development MP
 
 | Implementation | Status |
 | :--- | :--- |
+| [ABI](https://github.com/mpiwg-abi/header_and_stub_library) | [![abi](https://github.com/mpi4py/mpi4py-testing/actions/workflows/abi.yml/badge.svg)](https://github.com/mpi4py/mpi4py-testing/actions/workflows/abi.yml) |
 | [MPICH](https://github.com/pmodels/mpich) | [![mpich](https://github.com/mpi4py/mpi4py-testing/actions/workflows/mpich.yml/badge.svg)](https://github.com/mpi4py/mpi4py-testing/actions/workflows/mpich.yml) |
 | [MVAPICH](https://mvapich.cse.ohio-state.edu/) | [![mvapich](https://github.com/mpi4py/mpi4py-testing/actions/workflows/mvapich.yml/badge.svg)](https://github.com/mpi4py/mpi4py-testing/actions/workflows/mvapich.yml) |
 | [Intel MPI](https://software.intel.com/intel-mpi-library) | [![intelmpi](https://github.com/mpi4py/mpi4py-testing/actions/workflows/intelmpi.yml/badge.svg)](https://github.com/mpi4py/mpi4py-testing/actions/workflows/intelmpi.yml) |
