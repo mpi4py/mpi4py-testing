@@ -43,6 +43,12 @@ jobs:
       mpi4py-git: ${{ inputs.mpi4py-git }}
       mpi4py-ref: ${{ inputs.mpi4py-ref }}
 
+  msmpi:
+    uses: ./.github/workflows/msmpi.yml
+    with:
+      mpi4py-git: ${{ inputs.mpi4py-git }}
+      mpi4py-ref: ${{ inputs.mpi4py-ref }}
+
   mvapich:
     uses: ./.github/workflows/mvapich.yml
     with:
