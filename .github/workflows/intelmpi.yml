@@ -118,10 +118,6 @@ jobs:
       if:   ${{ false }}
       timeout-minutes: 10
 
-    - name:  Set MPI4PY_RC_RECV_MPROBE=false
-      run:   echo "MPI4PY_RC_RECV_MPROBE=false" >> $GITHUB_ENV
-      shell: bash
-
     - name: Test mpi4py.futures (singleton)
       run:  python demo/futures/test_futures.py -v
       if:   ${{ true }}
