@@ -45,7 +45,7 @@ on:
 jobs:
 
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -65,6 +65,7 @@ jobs:
       run:  sudo apt-get install -y -q
               libnuma-dev
               librdmacm-dev
+              subversion
 
     - name: Checkout MPI
       run:  svn co $SVN/$REF mpi-build
