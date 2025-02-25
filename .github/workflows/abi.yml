@@ -52,7 +52,7 @@ jobs:
     - name: Checkout MPI stubs
       uses: actions/checkout@v4
       with:
-        repository: mpiwg-abi/header_and_stub_library
+        repository: mpi-forum/mpi-abi-stubs
         ref: main
         path: mpi-stubs
 
