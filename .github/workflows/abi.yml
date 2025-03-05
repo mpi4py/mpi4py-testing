@@ -49,21 +49,20 @@ jobs:
 
     steps:
 
-    - name: Checkout MPI stubs
+    - name: Checkout MPI ABI stubs
       uses: actions/checkout@v4
       with:
         repository: mpi-forum/mpi-abi-stubs
         ref: main
-        path: mpi-stubs
+        path: mpi-abi-stubs
 
-    - name: Build MPI stubs
+    - name: Build MPI ABI stubs
       run:  make
-      working-directory: mpi-stubs
+      working-directory: mpi-abi-stubs
 
-    - name: Add MPI stubs to PATH
-      run: |
-        mpi_stubs=${{ github.workspace }}/mpi-stubs
-        echo $mpi_stubs/bin >> $GITHUB_PATH
+    - name: Add MPI ABI stubs to PATH
+      run:  echo $(pwd)/bin >> $GITHUB_PATH
+      working-directory: mpi-abi-stubs
 
     - name: Use Python
       uses: actions/setup-python@v5
