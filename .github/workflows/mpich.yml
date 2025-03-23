@@ -140,6 +140,10 @@ jobs:
       env:
         CFLAGS: "-O0"
 
+    - name: Check ringtest
+      run:  mpiexec -n 2 python -m mpi4py.bench ringtest
+      env:  {MPIR_CVAR_DEBUG_SUMMARY: 5}
+
     - name: Test mpi4py (singleton)
       run:  python test/main.py -v
       if:   ${{ true }}
