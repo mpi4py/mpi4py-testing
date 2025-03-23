@@ -1,4 +1,4 @@
-name: intelmpi
+name: impi
 
 on:
   workflow_call:
@@ -28,7 +28,7 @@ on:
   push:
     branches:
       - ci/all
-      - ci/intelmpi
+      - ci/impi
   schedule:
     - cron: '0 0 * * 6'
 
@@ -53,7 +53,7 @@ jobs:
     - name: Install MPI
       uses: mpi4py/setup-mpi@v1
       with:
-        mpi: intelmpi
+        mpi: impi
 
     - name: Tweak MPI
       run:  |
