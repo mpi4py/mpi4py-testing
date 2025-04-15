@@ -42,6 +42,9 @@ on:
   schedule:
     - cron: '0 0 * * 6'
 
+permissions:
+  contents: read
+
 jobs:
 
   test:

@@ -17,6 +17,9 @@ on:
     branches:
       - ci/@ALL
 
+permissions:
+  contents: read
+
 jobs:
 
   abi:
