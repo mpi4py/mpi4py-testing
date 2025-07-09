@@ -61,9 +61,10 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
-        echo "I_MPI_SPAWN=1"        >> $GITHUB_ENV
-        echo "I_MPI_SPIN_COUNT=1"   >> $GITHUB_ENV
-        echo "I_MPI_THREAD_YIELD=2" >> $GITHUB_ENV
+        echo "I_MPI_SPAWN=1"               >> $GITHUB_ENV
+        echo "I_MPI_SPIN_COUNT=1"          >> $GITHUB_ENV
+        echo "I_MPI_THREAD_YIELD=2"        >> $GITHUB_ENV
+        echo "I_MPI_COMPATIBILITY=mpi-4.1" >> $GITHUB_ENV
       shell: bash
 
     - name: Show MPI
