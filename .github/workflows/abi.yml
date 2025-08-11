@@ -169,7 +169,7 @@ jobs:
         ref: ${{ inputs.mpi4py-ref }}
 
     - name: Download mpi4py wheel
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: mpi4py-wheel
         path: dist
