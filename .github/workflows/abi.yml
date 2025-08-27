@@ -53,7 +53,7 @@ jobs:
     steps:
 
     - name: Checkout MPI ABI stubs
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: mpi-forum/mpi-abi-stubs
         ref: main
@@ -74,7 +74,7 @@ jobs:
         architecture: x64
 
     - name: Checkout mpi4py
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
         ref: ${{ inputs.mpi4py-ref }}
@@ -113,7 +113,7 @@ jobs:
               librdmacm-dev
 
     - name: Checkout MPI
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.mpi-git || 'pmodels/mpich' }}
         ref: ${{ inputs.mpi-ref }}
@@ -163,7 +163,7 @@ jobs:
         architecture: x64
 
     - name: Checkout mpi4py
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
         ref: ${{ inputs.mpi4py-ref }}

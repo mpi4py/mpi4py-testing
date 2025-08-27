@@ -88,7 +88,7 @@ jobs:
               numpy cffi pyyaml
 
     - name: Checkout mpi4py
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
         ref: ${{ inputs.mpi4py-ref }}
