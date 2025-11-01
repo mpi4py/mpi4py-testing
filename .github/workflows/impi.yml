@@ -22,7 +22,7 @@ on:
         type: string
       mpi4py-ref:
         description: 'mpi4py ref'
-        default:  ''
+        default:  'update-impi'
         required: false
         type: string
   push:
@@ -54,7 +54,7 @@ jobs:
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
 
     - name: Install MPI
-      uses: mpi4py/setup-mpi@v1
+      uses: mpi4py/setup-mpi@impi
       with:
         mpi: impi
 
