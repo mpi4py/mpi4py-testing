@@ -55,7 +55,7 @@ jobs:
       matrix:
         mpi-ref: ${{ inputs.mpi-ref &&
                      fromJSON(format('["{0}"]', inputs.mpi-ref)) ||
-                     fromJSON('["main", "v5.0.x", "v4.1.x"]') }}
+                     fromJSON('["main", "v6.0.x", "v5.0.x", "v4.1.x"]') }}
 
     steps:
 
