@@ -17,7 +17,7 @@ on:
     inputs:
       mpi-git:
         description: 'MPI git'
-        default:  pmodels/mpich
+        default:  ''
         required: false
         type: string
       mpi-ref:
@@ -92,10 +92,17 @@ jobs:
         path: mpi4py-*.whl
 
 
-  mpich:
+  test:
+    name: ${{ matrix.mpi-git }}
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mpi-git: ${{ inputs.mpi-git &&
+                     fromJSON(format('["{0}"]', inputs.mpi-git)) ||
+                     fromJSON('["pmodels/mpich", "open-mpi/ompi"]') }}
 
     steps:
 
@@ -108,6 +115,7 @@ jobs:
               libhwloc-dev
               libfabric-dev
               libibverbs-dev
+              libnuma-dev
               libpsm-infinipath1-dev
               libpsm2-dev
               librdmacm-dev
@@ -115,16 +123,24 @@ jobs:
     - name: Checkout MPI
       uses: actions/checkout@v5
       with:
-        repository: ${{ inputs.mpi-git || 'pmodels/mpich' }}
-        ref: ${{ inputs.mpi-ref }}
+        repository: ${{ matrix.mpi-git }}
+        ref: ${{ inputs.mpi-ref ||
+                 ((matrix.mpi-git == 'open-mpi/ompi') &&
+                  'refs/pull/13280/head') || 'main' }}
         path: mpi-build
         submodules: recursive
 
-    - name: Bootstrap MPI
+    - name: Bootstrap MPI (mpich)
       run:  ./autogen.sh
       working-directory: mpi-build
+      if: ${{ endsWith(matrix.mpi-git, 'mpich') }}
 
-    - name: Configure MPI
+    - name: Bootstrap MPI (openmpi)
+      run:  ./autogen.pl
+      working-directory: mpi-build
+      if: ${{ endsWith(matrix.mpi-git, 'ompi') }}
+
+    - name: Configure MPI (mpich)
       run:  ./configure
               --with-pm=hydra
               --with-device=ch4:ofi
@@ -135,6 +151,21 @@ jobs:
               --enable-fast=none
               --enable-mpi-abi
       working-directory: mpi-build
+      if: ${{ endsWith(matrix.mpi-git, 'mpich') }}
+
+    - name: Configure MPI (openmpi)
+      run:  ./configure
+              --disable-dependency-tracking
+              --without-ofi
+              --without-ucx
+              --without-psm2
+              --enable-debug
+              --enable-mem-debug
+              --disable-sphinx
+              --disable-oshmem
+              LDFLAGS=-Wl,-rpath,/usr/local/lib
+      working-directory: mpi-build
+      if: ${{ endsWith(matrix.mpi-git, 'ompi') }}
 
     - name: Build MPI
       run:  make -j $(nproc)
@@ -152,9 +183,23 @@ jobs:
       run:  |
         # Tweak MPI
         echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
+        # Tweak MPI
+        mca_params="$HOME/.openmpi/mca-params.conf"
+        mkdir -p "$(dirname "$mca_params")"
+        echo mpi_param_check = true >> "$mca_params"
+        echo mpi_show_handle_leaks = true >> "$mca_params"
+        echo rmaps_base_oversubscribe = true >> "$mca_params"
+        mca_params="$HOME/.prte/mca-params.conf"
+        mkdir -p "$(dirname "$mca_params")"
+        echo rmaps_default_mapping_policy = :oversubscribe >> "$mca_params"
 
-    - name: Show MPI
+    - name: Show MPI (mpich)
       run:  mpichversion
+      if: ${{ endsWith(matrix.mpi-git, 'mpich') }}
+
+    - name: Show MPI (openmpi)
+      run:  ompi_info
+      if: ${{ endsWith(matrix.mpi-git, 'ompi') }}
 
     - name: Use Python
       uses: actions/setup-python@v6
@@ -194,7 +239,7 @@ jobs:
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
-      if:   ${{ false }}
+      if:   ${{ !endsWith(matrix.mpi-git, 'mpich') }}
       timeout-minutes: 10
 
     - name: Test mpi4py.futures (singleton)
