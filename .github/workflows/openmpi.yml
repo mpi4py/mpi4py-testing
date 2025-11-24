@@ -68,7 +68,7 @@ jobs:
               libnuma-dev
 
     - name: Checkout MPI
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.mpi-git || 'open-mpi/ompi' }}
         ref: ${{ matrix.mpi-ref }}
@@ -131,7 +131,7 @@ jobs:
               numpy cffi pyyaml
 
     - name: Checkout mpi4py
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.mpi4py-git || 'mpi4py/mpi4py' }}
         ref: ${{ inputs.mpi4py-ref }}
