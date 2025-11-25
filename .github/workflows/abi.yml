@@ -17,7 +17,7 @@ on:
     inputs:
       mpi-git:
         description: 'MPI git'
-        default:  pmodels/mpich
+        default:  ''
         required: false
         type: string
       mpi-ref:
@@ -92,10 +92,17 @@ jobs:
         path: mpi4py-*.whl
 
 
-  mpich:
+  test:
+    name: ${{ contains(matrix.mpi-git, 'mpich') && 'mpich' || 'openmpi' }}
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mpi-git: ${{ inputs.mpi-git &&
+                     fromJSON(format('["{0}"]', inputs.mpi-git)) ||
+                     fromJSON('["pmodels/mpich", "open-mpi/ompi"]') }}
 
     steps:
 
@@ -108,6 +115,7 @@ jobs:
               libhwloc-dev
               libfabric-dev
               libibverbs-dev
+              libnuma-dev
               libpsm-infinipath1-dev
               libpsm2-dev
               librdmacm-dev
@@ -115,25 +123,47 @@ jobs:
     - name: Checkout MPI
       uses: actions/checkout@v6
       with:
-        repository: ${{ inputs.mpi-git || 'pmodels/mpich' }}
-        ref: ${{ inputs.mpi-ref }}
+        repository: ${{ matrix.mpi-git }}
+        ref: ${{ inputs.mpi-ref ||
+                 ((matrix.mpi-git == 'open-mpi/ompi') &&
+                  'refs/pull/13280/head') || 'main' }}
         path: mpi-build
         submodules: recursive
 
     - name: Bootstrap MPI
-      run:  ./autogen.sh
+      run:  ${{ contains(matrix.mpi-git, 'mpich') &&
+                './autogen.sh' ||  './autogen.pl' }}
       working-directory: mpi-build
 
     - name: Configure MPI
-      run:  ./configure
-              --with-pm=hydra
-              --with-device=ch4:ofi
-              --disable-dependency-tracking
-              --disable-maintainer-mode
-              --disable-doc
-              --enable-g=all
-              --enable-fast=none
-              --enable-mpi-abi
+      run:  |
+        # ./configure ...
+        if [[ '${{ matrix.mpi-git }}' == *mpich* ]]
+        then
+            options=(
+                --with-pm=hydra
+                --with-device=ch4:ofi
+                --disable-dependency-tracking
+                --disable-maintainer-mode
+                --disable-doc
+                --enable-g=all
+                --enable-fast=none
+                --enable-mpi-abi
+            )
+        else
+            options=(
+                --disable-dependency-tracking
+                --without-ofi
+                --without-ucx
+                --without-psm2
+                --enable-debug
+                --enable-mem-debug
+                --disable-sphinx
+                --disable-oshmem
+                LDFLAGS=-Wl,-rpath,/usr/local/lib
+            )
+        fi
+        ./configure "${options[@]}"
       working-directory: mpi-build
 
     - name: Build MPI
@@ -152,9 +182,19 @@ jobs:
       run:  |
         # Tweak MPI
         echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
+        # Tweak MPI
+        mca_params="$HOME/.openmpi/mca-params.conf"
+        mkdir -p "$(dirname "$mca_params")"
+        echo mpi_param_check = true >> "$mca_params"
+        echo mpi_show_handle_leaks = true >> "$mca_params"
+        echo rmaps_base_oversubscribe = true >> "$mca_params"
+        mca_params="$HOME/.prte/mca-params.conf"
+        mkdir -p "$(dirname "$mca_params")"
+        echo rmaps_default_mapping_policy = :oversubscribe >> "$mca_params"
 
     - name: Show MPI
-      run:  mpichversion
+      run:  ${{ contains(matrix.mpi-git, 'mpich') &&
+                'mpichversion' || 'ompi_info' }}
 
     - name: Use Python
       uses: actions/setup-python@v6
@@ -194,7 +234,7 @@ jobs:
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
-      if:   ${{ false }}
+      if:   ${{ !contains(matrix.mpi-git, 'mpich') }}
       timeout-minutes: 10
 
     - name: Test mpi4py.futures (singleton)
