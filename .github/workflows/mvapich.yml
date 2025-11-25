@@ -156,8 +156,8 @@ jobs:
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
-      if:   ${{ matrix.device == 'ch3:sock' }}
       timeout-minutes: 10
+      if:   ${{ matrix.device == 'ch3:sock' }}
 
     - name: Test mpi4py.futures (singleton)
       run:  python demo/futures/test_futures.py -v

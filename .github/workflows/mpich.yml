@@ -149,7 +149,6 @@ jobs:
 
     - name: Test mpi4py (singleton)
       run:  python test/main.py -v
-      if:   ${{ true }}
     - name: Test mpi4py (np=1)
       run:  mpiexec -n 1 python test/main.py -v
     - name: Test mpi4py (np=2)
@@ -163,12 +162,14 @@ jobs:
       timeout-minutes: 10
     - name: Test mpi4py (np=5)
       run:  mpiexec -n 5 python test/main.py -v -f
-      if:   ${{ matrix.device == 'ch3:sock' }}
       timeout-minutes: 10
+      env:
+        MPIR_CVAR_POLLS_BEFORE_YIELD: 1
+        MPIR_CVAR_CH4_PROGRESS_THROTTLE: true
+        MPIR_CVAR_CH4_PROGRESS_THROTTLE_NO_PROGRESS_COUNT: 1
 
     - name: Test mpi4py.futures (singleton)
       run:  python demo/futures/test_futures.py -v
-      if:   ${{ true }}
     - name: Test mpi4py.futures (np=1)
       run:  mpiexec -n 1 python demo/futures/test_futures.py -v
     - name: Test mpi4py.futures (np=2)
