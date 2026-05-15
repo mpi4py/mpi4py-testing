@@ -15,16 +15,6 @@ on:
         type: string
   workflow_dispatch:
     inputs:
-      mpi-svn:
-        description: 'MPI svn'
-        default:  https://scm.mvapich.cse.ohio-state.edu/svn/mpi/mvapich2
-        required: false
-        type: string
-      mpi-ref:
-        description: 'MPI ref'
-        default:  ''
-        required: false
-        type: string
       mpi4py-git:
         description: 'mpi4py git'
         default:  mpi4py/mpi4py
@@ -53,10 +43,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pm:
-          - hydra
-        device:
-          - ch3:mrail
+        include:
+        - package: 'mvapich2'
+          version: '2.3.7-2'
+      # - package: 'mvapich'
+      #   version: '4.1'
 
     steps:
 
@@ -68,22 +59,23 @@ jobs:
       run:  sudo apt-get install -y -q
               libnuma-dev
               librdmacm-dev
-              subversion
 
     - name: Checkout MPI
-      run:  svn co $SVN/$REF mpi-build
+      run:  |
+        tarball=$PACKAGE-$VERSION.tar.gz
+        rooturl=https://mvapich.cse.ohio-state.edu/download/mvapich/mv2
+        curl -sSL $rooturl/$tarball | tar -zx
+        mv ${tarball%.tar.gz} mpi-build
       env:
-        SVN: ${{ inputs.mpi-svn || 'https://scm.mvapich.cse.ohio-state.edu/svn/mpi/mvapich2' }}
-        REF: ${{ inputs.mpi-ref || 'trunk' }}
+        PACKAGE: ${{ matrix.package }}
+        VERSION: ${{ matrix.version }}
 
     - name: Bootstrap MPI
-      run:  ./autogen.sh
+      run:  test -f configure || ./autogen.sh
       working-directory: mpi-build
 
     - name: Configure MPI
       run:  ./configure
-              --with-pm=${{ matrix.pm }}
-              --with-device=${{ matrix.device }}
               --disable-dependency-tracking
               --disable-maintainer-mode
               --enable-g=all
