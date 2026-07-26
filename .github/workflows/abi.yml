@@ -64,7 +64,7 @@ jobs:
       working-directory: mpi-abi-stubs
 
     - name: Add MPI ABI stubs to PATH
-      run:  echo $(pwd)/bin >> $GITHUB_PATH
+      run:  echo "$(pwd)/bin" >> "$GITHUB_PATH"
       working-directory: mpi-abi-stubs
 
     - name: Use Python
@@ -107,7 +107,7 @@ jobs:
     steps:
 
     - name: Configure hostname
-      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      run:  echo 127.0.0.1 "$(hostname)" | sudo tee -a /etc/hosts > /dev/null
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
 
     - name: Install depencencies
@@ -160,14 +160,14 @@ jobs:
                 --enable-mem-debug
                 --disable-sphinx
                 --disable-oshmem
-                LDFLAGS=-Wl,-rpath,/usr/local/lib
+                LDFLAGS="-Wl,-rpath,/usr/local/lib"
             )
         fi
         ./configure "${options[@]}"
       working-directory: mpi-build
 
     - name: Build MPI
-      run:  make -j $(nproc)
+      run:  make -j "$(nproc)"
       working-directory: mpi-build
 
     - name: Install MPI
@@ -181,7 +181,7 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
-        echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
+        echo "RDMAV_FORK_SAFE=1" >> "$GITHUB_ENV"
         # Tweak MPI
         mca_params="$HOME/.openmpi/mca-params.conf"
         mkdir -p "$(dirname "$mca_params")"

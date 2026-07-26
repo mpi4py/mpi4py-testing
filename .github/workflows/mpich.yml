@@ -65,7 +65,7 @@ jobs:
     steps:
 
     - name: Configure hostname
-      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      run:  echo 127.0.0.1 "$(hostname)" | sudo tee -a /etc/hosts > /dev/null
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
 
     - name: Install depencencies
@@ -95,12 +95,12 @@ jobs:
               --enable-fast=none
               --disable-fortran
               LDFLAGS=-Wl,-rpath,/usr/local/lib
-              $(test ${{ matrix.pm }} == gforker &&
-                echo --with-namepublisher=file)
+              "$(test ${{ matrix.pm }} == gforker &&
+                echo --with-namepublisher=file || true)"
       working-directory: mpi-build
 
     - name: Build MPI
-      run:  make -j $(nproc)
+      run:  make -j "$(nproc)"
       working-directory: mpi-build
 
     - name: Install MPI

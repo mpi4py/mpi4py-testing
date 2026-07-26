@@ -49,7 +49,7 @@ jobs:
     steps:
 
     - name: Configure hostname
-      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      run:  echo 127.0.0.1 "$(hostname)" | sudo tee -a /etc/hosts > /dev/null
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
 
     - name: Install MPI
@@ -60,7 +60,7 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
-        echo "MSMPI_PROGRESS_SPIN_LIMIT=16" >> $GITHUB_ENV
+        echo "MSMPI_PROGRESS_SPIN_LIMIT=16" >> "$GITHUB_ENV"
       shell: bash
 
     - name: Show MPI

@@ -52,7 +52,7 @@ jobs:
     steps:
 
     - name: Configure hostname
-      run:  echo 127.0.0.1 `hostname` | sudo tee -a /etc/hosts > /dev/null
+      run:  echo 127.0.0.1 "$(hostname)" | sudo tee -a /etc/hosts > /dev/null
       if:   ${{ runner.os == 'Linux' || runner.os == 'macOS' }}
 
     - name: Install depencencies
@@ -62,10 +62,10 @@ jobs:
 
     - name: Checkout MPI
       run:  |
-        tarball=$PACKAGE-$VERSION.tar.gz
+        tarball="$PACKAGE"-"$VERSION".tar.gz
         rooturl=https://mvapich.cse.ohio-state.edu/download/mvapich/mv2
-        curl -sSL $rooturl/$tarball | tar -zx
-        mv ${tarball%.tar.gz} mpi-build
+        curl -sSL "$rooturl/$tarball" | tar -zx
+        mv "${tarball%.tar.gz}" mpi-build
       env:
         PACKAGE: ${{ matrix.package }}
         VERSION: ${{ matrix.version }}
@@ -82,12 +82,12 @@ jobs:
               --enable-fast=none
               --disable-fortran
               LDFLAGS=-Wl,-rpath,/usr/local/lib
-              $(test ${{ matrix.pm }} == gforker &&
-                echo --with-namepublisher=file)
+              "$(test ${{ matrix.pm }} == gforker &&
+                echo --with-namepublisher=file || true)"
       working-directory: mpi-build
 
     - name: Build MPI
-      run:  make -j $(nproc)
+      run:  make -j "$(nproc)"
       working-directory: mpi-build
 
     - name: Install MPI
@@ -97,9 +97,9 @@ jobs:
     - name: Tweak MPI
       run:  |
         # Tweak MPI
-        echo "MV2_SMP_USE_CMA=0"        >> $GITHUB_ENV
-        echo "MV2_ENABLE_AFFINITY=0"    >> $GITHUB_ENV
-        echo "MV2_USE_THREAD_WARNING=0" >> $GITHUB_ENV
+        echo "MV2_SMP_USE_CMA=0"        >> "$GITHUB_ENV"
+        echo "MV2_ENABLE_AFFINITY=0"    >> "$GITHUB_ENV"
+        echo "MV2_USE_THREAD_WARNING=0" >> "$GITHUB_ENV"
 
     - name: Show MPI
       run:  mpichversion
