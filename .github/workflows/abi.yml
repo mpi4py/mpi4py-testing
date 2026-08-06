@@ -124,9 +124,7 @@ jobs:
       uses: actions/checkout@v7
       with:
         repository: ${{ matrix.mpi-git }}
-        ref: ${{ inputs.mpi-ref ||
-                 ((matrix.mpi-git == 'open-mpi/ompi') &&
-                  'refs/pull/13280/head') || 'main' }}
+        ref: ${{ inputs.mpi-ref }}
         path: mpi-build
         submodules: recursive
 
