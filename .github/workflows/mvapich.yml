@@ -44,10 +44,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - package: 'mvapich2'
-          version: '2.3.7-2'
-      # - package: 'mvapich'
-      #   version: '4.1'
+        - package: 'mvapich'
+          version: '4.1'
+      # - package: 'mvapich2'
+      #   version: '2.3.7-2'
 
     steps:
 
