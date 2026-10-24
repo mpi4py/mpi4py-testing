@@ -44,10 +44,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - package: 'mvapich2'
-          version: '2.3.7-2'
-      # - package: 'mvapich'
-      #   version: '4.1'
+        - package: 'mvapich'
+          version: '4.1'
 
     steps:
 
@@ -80,6 +78,8 @@ jobs:
               --disable-maintainer-mode
               --enable-g=all
               --enable-fast=none
+              --disable-ucx
+              --disable-ucr
               --disable-fortran
               LDFLAGS=-Wl,-rpath,/usr/local/lib
               "$(test ${{ matrix.pm }} == gforker &&
@@ -130,6 +130,7 @@ jobs:
     - name: Install mpi4py
       run:  python -m pip install .
       env:
+        CPPFLAGS: "-DMVAPICH_VERSION='\"${{ matrix.version }}\"'"
         CFLAGS: "-O0"
 
     - name: Test mpi4py (singleton)
